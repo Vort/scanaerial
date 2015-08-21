@@ -18,18 +18,15 @@ if __name__ == "__main__":
     exit(0)
 
 from PIL import Image, ImageFilter
-try:
-    from urllib.request import urlopen
-    from urllib.error import URLError
-    from urllib.error import HTTPError
-except ImportError:
-    from urllib2 import urlopen
-    from urllib2 import URLError
-    from urllib2 import HTTPError
+from urllib2 import urlopen
+from urllib2 import Request
+from urllib2 import URLError
+from urllib2 import HTTPError
 import io
 import datetime
 import sys
 import random
+import base64
 import binascii
 from time import clock
 from debug import debug
@@ -41,7 +38,10 @@ time_str = {0:" first ", 1:" second ", 2:" third and last "}
 class WmsCanvas:
 
     def __init__(self, server_url = None, server_api = None, proj = "EPSG:4326", zoom = 4, \
-                 tile_size = None, mode = "RGBA", empty_tile_bytes = 0, empty_tile_checksum = 0):
+                 tile_size = None, mode = "RGBA", empty_tile_bytes = 0, empty_tile_checksum = 0, \
+                 server_login = "", server_password = ""):
+        self.server_login = server_login
+        self.server_password = server_password
         self.empty_tile_bytes = empty_tile_bytes
         self.empty_tile_checksum = empty_tile_checksum
         self.server_url = server_url
@@ -144,10 +144,14 @@ class WmsCanvas:
         if self.server_url:
             remote = self.ConstructTileUrl (x, y)
             debug("URL: " + remote)
+            request = Request(remote)
+            if self.server_login != "":
+                auth_string = base64.encodestring('%s:%s' % (self.server_login, self.server_password)).replace('\n', '')
+                request.add_header("Authorization", "Basic %s" % auth_string)   
             start = clock()
             for dl_retrys in range(0, 3):
                 try:
-                    contents = urlopen(remote).read()
+                    contents = urlopen(request).read()
                     
                 except URLError as detail:
                     server_error = True

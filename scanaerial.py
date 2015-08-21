@@ -113,6 +113,13 @@ EMPTY_TILE_CHECKSUM = 0
 if config.has_option('WMS', 'empty_tile_checksum'):
     EMPTY_TILE_CHECKSUM = config.getint('WMS', 'empty_tile_checksum')
 
+SERVER_LOGIN = ""
+SERVER_PASSWORD = ""
+if config.has_option('WMS', 'server_login'):
+    SERVER_LOGIN = config.get('WMS', 'server_login')
+if config.has_option('WMS', 'server_password'):
+    SERVER_PASSWORD = config.get('WMS', 'server_password')
+
 PROJECTION = config.get('WMS', 'projection')
 TILE_SIZE = (config.getint('WMS', 'tile_sizex'), config.getint('WMS', 'tile_sizey'))
 
@@ -136,7 +143,8 @@ if config.has_option('SCAN', 'size_limit'):
 
 
 
-web = WmsCanvas(SERVER_URL, SERVER_API, PROJECTION, ZOOM, TILE_SIZE, "RGB", EMPTY_TILE_BYTES, EMPTY_TILE_CHECKSUM)
+web = WmsCanvas(SERVER_URL, SERVER_API, PROJECTION, ZOOM, TILE_SIZE, \
+                "RGB", EMPTY_TILE_BYTES, EMPTY_TILE_CHECKSUM, SERVER_LOGIN, SERVER_PASSWORD)
 
 was_expanded = True
 
